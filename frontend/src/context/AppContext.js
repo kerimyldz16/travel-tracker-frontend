@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../utils/firebaseConfig.js";
+import { useNavigate } from "react-router-dom";
 import {
   fetchVisitedCountries,
   addCountry,
@@ -21,6 +22,8 @@ export const AppProvider = ({ children }) => {
   const [countryCodeToNameMap, setCountryCodeToNameMap] = useState({});
   const [user, setUser] = useState(null);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -28,6 +31,7 @@ export const AppProvider = ({ children }) => {
         fetchVisitedCountries(user.uid).then((countries) => {
           setVisitedCountries(countries);
         });
+        navigate("/"); // login başarılıysa main'e yönlendir
       } else {
         setUser(null);
         setVisitedCountries([]);
@@ -35,7 +39,7 @@ export const AppProvider = ({ children }) => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     const initializeData = async () => {
